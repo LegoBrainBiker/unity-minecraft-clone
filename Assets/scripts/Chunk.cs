@@ -12,9 +12,15 @@ public class Chunk
     private Mesh mesh;
     bool[,,] blocks;
     private Material material;
+    int chunkX;
+    int chunkY;
+    int chunkZ;
 
-    public Chunk(bool[,,] theBlocks, int chunkX, int chunkY, int chunkZ, Material mat)
+    public Chunk(bool[,,] theBlocks, int X, int Y, int Z, Material mat)
     {
+        chunkX = X;
+        chunkY = Y;
+        chunkZ = Z;
         material = mat;
         blocks =  theBlocks;
         generateMesh(chunkX, chunkY, chunkZ);

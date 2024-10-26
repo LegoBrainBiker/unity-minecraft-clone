@@ -12,21 +12,17 @@ public class Chunk
     private Mesh mesh;
     bool[,,] blocks;
     private Material material;
-    int chunkX;
-    int chunkY;
-    int chunkZ;
+    Vector3 chunkPos;
 
     public Chunk(bool[,,] theBlocks, int X, int Y, int Z, Material mat)
     {
-        chunkX = X;
-        chunkY = Y;
-        chunkZ = Z;
+        chunkPos = new Vector3(X*16, Y*16, Z*16);
         material = mat;
         blocks =  theBlocks;
-        generateMesh(chunkX, chunkY, chunkZ);
+        generateMesh();
     }
 
-    public void generateMesh(int chunkX, int chunkY, int chunkZ)
+    public void generateMesh()
     {
         mesh = new Mesh();
         List<Vector3> verts = new List<Vector3>();
@@ -51,7 +47,7 @@ public class Chunk
                                 {
                                     for (int i = 0;i<4;i++)
                                     {
-                                        pos = (points[points2[index, i]])+(new Vector3(x+chunkX, y+chunkY, z+chunkZ));
+                                        pos = (points[points2[index, i]])+(new Vector3(x, y, z))+chunkPos;
                                         verts.Add(pos);
                                         UVs.Add(new Vector2(Mathf.Floor(i/2),Mathf.Floor((i+1)%4/2)));
                                         
@@ -67,7 +63,7 @@ public class Chunk
                             else{
                                 for (int i = 0;i<4;i++)
                                 {
-                                    pos = (points[points2[index, i]])+(new Vector3(x+chunkX, y+chunkY, z+chunkZ));
+                                    pos = (points[points2[index, i]])+(new Vector3(x, y, z))+chunkPos;
                                     verts.Add(pos);
                                     UVs.Add(new Vector2(Mathf.Floor(i/2),Mathf.Floor((i+1)%4/2)));
                                     
@@ -85,26 +81,29 @@ public class Chunk
                 }
             }
         }
-        mesh.SetVertices(verts);
-        mesh.SetTriangles(triangles, 0);
-        mesh.SetUVs(0, UVs);
-        meshObject.AddComponent(typeof(MeshFilter));
-        meshObject.GetComponents<MeshFilter>()[0].mesh = mesh;
-        meshObject.AddComponent(typeof(MeshRenderer));
-        meshObject.GetComponents<MeshRenderer>()[0].material = material;
-        meshObject.AddComponent(typeof(MeshCollider));
-        meshObject.GetComponents<MeshCollider>()[0].sharedMesh = mesh;
+        if (verts.Count>0)
+        {
+            mesh.SetVertices(verts);
+            mesh.SetTriangles(triangles, 0);
+            mesh.SetUVs(0, UVs);
+            meshObject.AddComponent(typeof(MeshFilter));
+            meshObject.GetComponents<MeshFilter>()[0].mesh = mesh;
+            meshObject.AddComponent(typeof(MeshRenderer));
+            meshObject.GetComponents<MeshRenderer>()[0].material = material;
+            meshObject.AddComponent(typeof(MeshCollider));
+            meshObject.GetComponents<MeshCollider>()[0].sharedMesh = mesh;
+        }
     }
 
     public bool getBlock(int x, int y, int z)
     {
         return blocks[x, y, z];
     }
-    /*
-    public void setBlock(int chunkX, int chunkY, int chunkZ, int x, int y, int z, bool block)
+    
+    public void setBlock(int x, int y, int z, bool block)
     {
         blocks[x, y, z] = block;
         generateMesh();
     }
-    */
+    
 }

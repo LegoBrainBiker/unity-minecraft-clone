@@ -10,7 +10,16 @@ public class generateTerrain : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        generateBlocks(0, 0, 0);
+        for (int x = -8; x<8; x++)
+        {
+            for (int z = -8; z<8; z++)
+            {
+                for (int y = -8; y<8; y++)
+                {
+                    generateBlocks(x, y, z);
+                }
+            }
+        }
     }
 
     private void generateBlocks(int chunkX, int chunkY, int chunkZ)
@@ -24,12 +33,11 @@ public class generateTerrain : MonoBehaviour
                 height = Mathf.PerlinNoise(x/16f, z/16f)*5+4;
                 for (int y = 0; y<16; y++)
                 {
-                    blocks[x, y, z] = y<height;
+                    blocks[x, y, z] = y+chunkY*16<height;
                 }
             }
         }
         chunks.Add(new Vector3(chunkX, chunkY, chunkZ),new Chunk(blocks, chunkX, chunkY, chunkZ, material));
-
     }
 
 

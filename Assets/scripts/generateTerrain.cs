@@ -13,11 +13,11 @@ public class generateTerrain : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        for (int x = -8; x<8; x++)
+        for (int x = -2; x<2; x++)
         {
-            for (int z = -8; z<8; z++)
+            for (int z = -2; z<2; z++)
             {
-                for (int y = -8; y<8; y++)
+                for (int y = -2; y<2; y++)
                 {
                     generateBlocks(x, y, z);
                 }
@@ -28,7 +28,7 @@ public class generateTerrain : MonoBehaviour
     private void generateBlocks(int chunkX, int chunkY, int chunkZ)
     {
         float height;
-        bool[,,] blocks = new bool[16, 16, 16];
+        int[,,] blocks = new int[16, 16, 16];
         for (int x = 0; x<16; x++)
         {
             for (int z = 0; z<16; z++)
@@ -36,7 +36,10 @@ public class generateTerrain : MonoBehaviour
                 height = Mathf.PerlinNoise(x/16f, z/16f)*5+4;
                 for (int y = 0; y<16; y++)
                 {
-                    blocks[x, y, z] = y+chunkY*16<height;
+                    if (y+chunkY*16<height)
+                        blocks[x, y, z] = 1;
+                    else
+                        blocks[x, y, z] = 0;
                 }
             }
         }
@@ -60,7 +63,7 @@ public class generateTerrain : MonoBehaviour
                 {
                     Vector3 pos = hit.point+hit.normal*-0.5f;
                     
-                    chunks[new Vector3(Mathf.Floor(pos.x/16), Mathf.Floor(pos.y/16), Mathf.Floor(pos.z/16))].setBlock(-(int)Mathf.Floor(pos.x/16)*16+(int)Mathf.Floor(pos.x), -(int)Mathf.Floor(pos.y/16)*16+(int)Mathf.Floor(pos.y), (int)Mathf.Floor(pos.z)-(int)Mathf.Floor(pos.z/16)*16, false);
+                    chunks[new Vector3(Mathf.Floor(pos.x/16), Mathf.Floor(pos.y/16), Mathf.Floor(pos.z/16))].setBlock(-(int)Mathf.Floor(pos.x/16)*16+(int)Mathf.Floor(pos.x), -(int)Mathf.Floor(pos.y/16)*16+(int)Mathf.Floor(pos.y), (int)Mathf.Floor(pos.z)-(int)Mathf.Floor(pos.z/16)*16, 0);
                 }
             }
         }
@@ -89,7 +92,7 @@ public class generateTerrain : MonoBehaviour
                 {
                     Vector3 pos = hit.point+hit.normal*0.5f;
                     
-                    chunks[new Vector3(Mathf.Floor(pos.x/16), Mathf.Floor(pos.y/16), Mathf.Floor(pos.z/16))].setBlock(-(int)Mathf.Floor(pos.x/16)*16+(int)Mathf.Floor(pos.x), -(int)Mathf.Floor(pos.y/16)*16+(int)Mathf.Floor(pos.y), (int)Mathf.Floor(pos.z)-(int)Mathf.Floor(pos.z/16)*16, true);
+                    chunks[new Vector3(Mathf.Floor(pos.x/16), Mathf.Floor(pos.y/16), Mathf.Floor(pos.z/16))].setBlock(-(int)Mathf.Floor(pos.x/16)*16+(int)Mathf.Floor(pos.x), -(int)Mathf.Floor(pos.y/16)*16+(int)Mathf.Floor(pos.y), (int)Mathf.Floor(pos.z)-(int)Mathf.Floor(pos.z/16)*16, 3);
                 }
             }
         }

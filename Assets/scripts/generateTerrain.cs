@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO.Compression;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class generateTerrain : MonoBehaviour
 {
@@ -10,6 +12,7 @@ public class generateTerrain : MonoBehaviour
     public Camera mainCamera;
     public Transform cursor;
     public Dictionary<Vector3,Chunk> chunks = new Dictionary<Vector3,Chunk>();
+    public List<Vector3> activeChunks = new List<Vector3>();
     // Start is called before the first frame update
     void Start()
     {
@@ -20,6 +23,7 @@ public class generateTerrain : MonoBehaviour
                 for (int y = -2; y<2; y++)
                 {
                     generateBlocks(x, y, z);
+                    activeChunks.Add(new Vector3(x, y, z));
                 }
             }
         }
@@ -61,6 +65,49 @@ public class generateTerrain : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+            List<Vector3> nearbyChunks = new List<Vector3>();
+
+        for (int x = -2; x<2; x++)
+        {
+            for (int z = -2; z<2; z++)
+            {
+                for (int y = -2; y<2; y++)
+                {
+                    nearbyChunks.Add(new Vector3(Mathf.Floor(playerTransform.position.x/16)+x, Mathf.Floor(playerTransform.position.y/16)+y, Mathf.Floor(playerTransform.position.z/16)+z));
+                }
+            }
+        }
+        for (int i = 0; i<activeChunks.Count; i++)
+        foreach (Vector3 Pos in activeChunks)
+        {
+            if(!nearbyChunks.Contains(Pos))
+            {
+                chunks[Pos].dissable();
+                activeChunks.Remove(Pos);
+                i--;
+            }
+        }
+        foreach (Vector3 Pos in nearbyChunks)
+        {
+            if (!activeChunks.Contains(Pos))
+            {
+                Debug.Log("enabling "+Pos);
+                if (chunks.ContainsKey(Pos))
+                {
+                    chunks[Pos].enable();
+                    Debug.Log("reloading");
+                }
+                else
+                {
+                    generateBlocks((int)Pos.x, (int)Pos.y, (int)Pos.z);
+                    Debug.Log("generating");
+                }
+                activeChunks.Add(Pos);
+
+            }
+        }
+
+
         Ray raycast;
         RaycastHit hit;
         if (Input.GetButtonDown("mouse 0"))

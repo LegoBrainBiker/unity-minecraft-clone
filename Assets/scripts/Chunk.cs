@@ -8,14 +8,13 @@ public class Chunk
     private static readonly Vector3[] points = {new Vector3(0,0,0), new Vector3(1,0,0), new Vector3(0,1,0), new Vector3(1,1,0), new Vector3(0,0,1), new Vector3(1,0,1), new Vector3(0,1,1), new Vector3(1,1,1)};
     private static readonly int[,] points2 = {{2, 6, 7, 3}, {4, 0, 1, 5}, {0, 2, 3, 1}, {5, 7, 6, 4}, {1, 3, 7, 5}, {4, 6, 2, 0}};
     private static readonly Vector3[] offsets = {new Vector3(0, 1, 0), new Vector3(0, -1, 0), new Vector3(0, 0, -1), new Vector3(0, 0, 1), new Vector3(1, 0, 0), new Vector3(-1, 0, 0)};
-    private static readonly int[,] textureNumber = {{-1, -1, -1, -1, -1, -1}, {3, 3, 3, 3, 3, 3}, {6, 6, 6, 6, 6, 6}, {7, 7, 7, 7, 7, 7}, {0, 3, 2, 2, 2, 2}};
-    //                                         air, dirt, stone, coblestone, grass
+    private static readonly int[,] textureNumber = {{-1, -1, -1, -1, -1, -1}, {3, 3, 3, 3, 3, 3}, {6, 6, 6, 6, 6, 6}, {7, 7, 7, 7, 7, 7}, {0, 3, 2, 2, 2, 2}, {8, 8, 8, 8, 8, 8}, {4, 4, 5, 5, 5, 5}, {1, 1, 1, 1, 1, 1}};
+    //                                         air, dirt, stone, coblestone, grass, planks, logs leaves
     private GameObject meshObject;
     private Mesh mesh;
     int[,,] blocks;
     private Material material;
     Vector3 chunkPos;
-    public bool isEnabled;
 
     public Chunk(int[,,] theBlocks, int X, int Y, int Z, Material mat)
     {
@@ -118,14 +117,12 @@ public class Chunk
     public void dissable()
     {
         meshObject.SetActive(false);
-        isEnabled = false;
 
     }
     
     public void enable()
     {
         meshObject.SetActive(true);
-        isEnabled = true;
     }
     
 }

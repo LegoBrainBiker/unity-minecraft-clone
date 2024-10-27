@@ -8,11 +8,12 @@ public class Chunk
     private static readonly Vector3[] points = {new Vector3(0,0,0), new Vector3(1,0,0), new Vector3(0,1,0), new Vector3(1,1,0), new Vector3(0,0,1), new Vector3(1,0,1), new Vector3(0,1,1), new Vector3(1,1,1)};
     private static readonly int[,] points2 = {{2, 6, 7, 3}, {4, 0, 1, 5}, {1, 0, 2, 3}, {4, 5, 7, 6}, {1, 3, 7, 5}, {4, 6, 2, 0}};
     private static readonly Vector3[] offsets = {new Vector3(0, 1, 0), new Vector3(0, -1, 0), new Vector3(0, 0, -1), new Vector3(0, 0, 1), new Vector3(1, 0, 0), new Vector3(-1, 0, 0)};
-    private GameObject meshObject = new GameObject();
+    private GameObject meshObject;
     private Mesh mesh;
     bool[,,] blocks;
     private Material material;
     Vector3 chunkPos;
+    public bool isEnabled;
 
     public Chunk(bool[,,] theBlocks, int X, int Y, int Z, Material mat)
     {
@@ -81,11 +82,14 @@ public class Chunk
                 }
             }
         }
+        meshObject = new GameObject();
         if (verts.Count>0)
         {
             mesh.SetVertices(verts);
             mesh.SetTriangles(triangles, 0);
             mesh.SetUVs(0, UVs);
+            mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
             meshObject.AddComponent(typeof(MeshFilter));
             meshObject.GetComponents<MeshFilter>()[0].mesh = mesh;
             meshObject.AddComponent(typeof(MeshRenderer));
@@ -103,7 +107,22 @@ public class Chunk
     public void setBlock(int x, int y, int z, bool block)
     {
         blocks[x, y, z] = block;
+        Object.Destroy(meshObject);
         generateMesh();
+    }
+
+
+    public void dissable()
+    {
+        meshObject.SetActive(false);
+        isEnabled = false;
+
+    }
+    
+    public void enable()
+    {
+        meshObject.SetActive(true);
+        isEnabled = true;
     }
     
 }

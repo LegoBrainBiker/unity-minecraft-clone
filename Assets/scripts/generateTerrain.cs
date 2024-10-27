@@ -37,7 +37,17 @@ public class generateTerrain : MonoBehaviour
                 for (int y = 0; y<16; y++)
                 {
                     if (y+chunkY*16<height)
-                        blocks[x, y, z] = 1;
+                    {
+                        if (y+chunkY*16>height-1)
+                            blocks[x, y, z] = 4;
+                        else
+                        {
+                            if (y+chunkY*16>height-6)
+                                blocks[x, y, z] = 1;
+                            else
+                                blocks[x, y, z] = 2;
+                        }
+                    }
                     else
                         blocks[x, y, z] = 0;
                 }

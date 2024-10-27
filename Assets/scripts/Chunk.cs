@@ -6,10 +6,10 @@ public class Chunk
 {
 
     private static readonly Vector3[] points = {new Vector3(0,0,0), new Vector3(1,0,0), new Vector3(0,1,0), new Vector3(1,1,0), new Vector3(0,0,1), new Vector3(1,0,1), new Vector3(0,1,1), new Vector3(1,1,1)};
-    private static readonly int[,] points2 = {{2, 6, 7, 3}, {4, 0, 1, 5}, {1, 0, 2, 3}, {4, 5, 7, 6}, {1, 3, 7, 5}, {4, 6, 2, 0}};
+    private static readonly int[,] points2 = {{2, 6, 7, 3}, {4, 0, 1, 5}, {0, 2, 3, 1}, {5, 7, 6, 4}, {1, 3, 7, 5}, {4, 6, 2, 0}};
     private static readonly Vector3[] offsets = {new Vector3(0, 1, 0), new Vector3(0, -1, 0), new Vector3(0, 0, -1), new Vector3(0, 0, 1), new Vector3(1, 0, 0), new Vector3(-1, 0, 0)};
-    private static readonly int[] textureNumber = {-1, 3, 6, 7};
-    //                                         air, dirt, stone, coblestone
+    private static readonly int[,] textureNumber = {{-1, -1, -1, -1, -1, -1}, {3, 3, 3, 3, 3, 3}, {6, 6, 6, 6, 6, 6}, {7, 7, 7, 7, 7, 7}, {0, 3, 2, 2, 2, 2}};
+    //                                         air, dirt, stone, coblestone, grass
     private GameObject meshObject;
     private Mesh mesh;
     int[,,] blocks;
@@ -54,7 +54,7 @@ public class Chunk
                                     {
                                         pos = points[points2[index, i]]+new Vector3(x, y, z)+chunkPos;
                                         verts.Add(pos);
-                                        UVs.Add(new Vector2(textureNumber[block]+Mathf.Floor(i/2)*0.96f+0.02f,Mathf.Floor((i+1)%4/2)*0.96f+0.02f+15)/16f);
+                                        UVs.Add(new Vector2(textureNumber[block, index]+Mathf.Floor(i/2),Mathf.Floor((i+1)%4/2)+15)/16f);
                                     }
                                     triangles.Add(verts.Count-4);
                                     triangles.Add(verts.Count-3);
@@ -69,7 +69,7 @@ public class Chunk
                                 {
                                     pos = points[points2[index, i]]+new Vector3(x, y, z)+chunkPos;
                                     verts.Add(pos);
-                                    UVs.Add(new Vector2(Mathf.Floor(i/2)*0.96f+0.02f+textureNumber[block],Mathf.Floor((i+1)%4/2)*0.96f+0.02f+15)/16f);
+                                    UVs.Add(new Vector2(Mathf.Floor(i/2)+textureNumber[block, index],Mathf.Floor((i+1)%4/2)+15)/16f);
                                     
                                 }
                                 triangles.Add(verts.Count-4);

@@ -37,7 +37,7 @@ public class generateTerrain : MonoBehaviour
         {
             for (int z = 0; z<16; z++)
             {
-                height = Mathf.PerlinNoise(x/16f, z/16f)*5+4;
+                height = Mathf.PerlinNoise(x/16f+chunkX, z/16f+chunkZ)*5+4;
                 for (int y = 0; y<16; y++)
                 {
                     if (y+chunkY*16<height)
@@ -65,49 +65,7 @@ public class generateTerrain : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-            List<Vector3> nearbyChunks = new List<Vector3>();
-
-        for (int x = -2; x<2; x++)
-        {
-            for (int z = -2; z<2; z++)
-            {
-                for (int y = -2; y<2; y++)
-                {
-                    nearbyChunks.Add(new Vector3(Mathf.Floor(playerTransform.position.x/16)+x, Mathf.Floor(playerTransform.position.y/16)+y, Mathf.Floor(playerTransform.position.z/16)+z));
-                }
-            }
-        }
-        for (int i = 0; i<activeChunks.Count; i++)
-        foreach (Vector3 Pos in activeChunks)
-        {
-            if(!nearbyChunks.Contains(Pos))
-            {
-                chunks[Pos].dissable();
-                activeChunks.Remove(Pos);
-                i--;
-            }
-        }
-        foreach (Vector3 Pos in nearbyChunks)
-        {
-            if (!activeChunks.Contains(Pos))
-            {
-                Debug.Log("enabling "+Pos);
-                if (chunks.ContainsKey(Pos))
-                {
-                    chunks[Pos].enable();
-                    Debug.Log("reloading");
-                }
-                else
-                {
-                    generateBlocks((int)Pos.x, (int)Pos.y, (int)Pos.z);
-                    Debug.Log("generating");
-                }
-                activeChunks.Add(Pos);
-
-            }
-        }
-
-
+        bool meshHasBeenEditedThisFrame = false;
         Ray raycast;
         RaycastHit hit;
         if (Input.GetButtonDown("mouse 0"))
@@ -121,6 +79,7 @@ public class generateTerrain : MonoBehaviour
                     Vector3 pos = hit.point+hit.normal*-0.5f;
                     
                     chunks[new Vector3(Mathf.Floor(pos.x/16), Mathf.Floor(pos.y/16), Mathf.Floor(pos.z/16))].setBlock(-(int)Mathf.Floor(pos.x/16)*16+(int)Mathf.Floor(pos.x), -(int)Mathf.Floor(pos.y/16)*16+(int)Mathf.Floor(pos.y), (int)Mathf.Floor(pos.z)-(int)Mathf.Floor(pos.z/16)*16, 0);
+                    meshHasBeenEditedThisFrame = true;
                 }
             }
         }
@@ -148,8 +107,49 @@ public class generateTerrain : MonoBehaviour
                 if (hit.distance<4.5f)
                 {
                     Vector3 pos = hit.point+hit.normal*0.5f;
-                    
                     chunks[new Vector3(Mathf.Floor(pos.x/16), Mathf.Floor(pos.y/16), Mathf.Floor(pos.z/16))].setBlock(-(int)Mathf.Floor(pos.x/16)*16+(int)Mathf.Floor(pos.x), -(int)Mathf.Floor(pos.y/16)*16+(int)Mathf.Floor(pos.y), (int)Mathf.Floor(pos.z)-(int)Mathf.Floor(pos.z/16)*16, 3);
+                    meshHasBeenEditedThisFrame = true;
+                }
+            }
+        }
+        if (!meshHasBeenEditedThisFrame)
+        {
+            List<Vector3> nearbyChunks = new List<Vector3>();
+
+            for (int x = -4; x<4; x++)
+            {
+                for (int z = -4; z<4; z++)
+                {
+                    for (int y = -4; y<4; y++)
+                    {
+                        nearbyChunks.Add(new Vector3(Mathf.Floor(playerTransform.position.x/16)+x, Mathf.Floor(playerTransform.position.y/16)+y, Mathf.Floor(playerTransform.position.z/16)+z));
+                    }
+                }
+            }
+            for (int i=0; i<activeChunks.Count; i++)
+            {
+                if(!nearbyChunks.Contains(activeChunks[i]))
+                {
+                    chunks[activeChunks[i]].dissable();
+                    activeChunks.Remove(activeChunks[i]);
+                    i--;
+                }
+            }
+            foreach (Vector3 Pos in nearbyChunks)
+            {
+                if (!activeChunks.Contains(Pos))
+                {
+                    if (chunks.ContainsKey(Pos))
+                    {
+                        chunks[Pos].enable();
+                    }
+                    else
+                    {
+                        meshHasBeenEditedThisFrame = true;
+                        generateBlocks((int)Pos.x, (int)Pos.y, (int)Pos.z);
+                    }
+                    activeChunks.Add(Pos);
+
                 }
             }
         }

@@ -35,7 +35,7 @@ public class generateTerrain : MonoBehaviour
     private void generateBlocks(int chunkX, int chunkY, int chunkZ)
     {
         float height;
-        int[,,] blocks = new int[16, 16, 16];
+        Block[,,] blocks = new Block[16, 16, 16];
         for (int x = 0; x<16; x++)
         {
             for (int z = 0; z<16; z++)
@@ -46,17 +46,17 @@ public class generateTerrain : MonoBehaviour
                     if (y+chunkY*16<height)
                     {
                         if (y+chunkY*16>height-1)
-                            blocks[x, y, z] = 4;
+                            blocks[x, y, z] = Block.grassBlock;
                         else
                         {
                             if (y+chunkY*16>height-6)
-                                blocks[x, y, z] = 1;
+                                blocks[x, y, z] = Block.dirt;
                             else
-                                blocks[x, y, z] = 2;
+                                blocks[x, y, z] = Block.stone;
                         }
                     }
                     else
-                        blocks[x, y, z] = 0;
+                        blocks[x, y, z] = Block.air;
                 }
             }
         }
@@ -89,9 +89,9 @@ public class generateTerrain : MonoBehaviour
         return sideChunks;
     }
 
-    private void setBlock(Vector3Int pos, int block) {
+    private void setBlock(Vector3Int pos, Block block) {
         Vector3Int chunkPos = new Vector3Int((int)Math.Floor(pos.x/16.0),(int)Math.Floor(pos.y/16.0),(int)Math.Floor(pos.z/16.0));
-        chunks[chunkPos].setBlock(mod(pos.x,16), mod(pos.y,16), mod(pos.z,16), block, getNeighborChunks(new Vector3Int((int)Mathf.Floor(pos.x/16), (int)Mathf.Floor(pos.y/16),(int)Mathf.Floor(pos.z/16))));
+        chunks[chunkPos].setBlock(mod(pos.x,16), mod(pos.y,16), mod(pos.z,16), block, getNeighborChunks(chunkPos));
         if (mod(pos.x,16) == 0) {
             chunks[chunkPos+new Vector3Int(-1, 0, 0)].generateSideMesh(getNeighborChunks(chunkPos+new Vector3Int(-1, 0, 0)));
         } else if (mod(pos.x,16) == 15) {
@@ -129,7 +129,7 @@ public class generateTerrain : MonoBehaviour
                 if (hit.distance<4.5f)
                 {
                     Vector3Int pos = Vector3Int.FloorToInt(hit.point+hit.normal*-0.5f);
-                    setBlock(pos, 0);
+                    setBlock(pos, Block.air);
                     meshHasBeenEditedThisFrame = true;
                 }
             }
@@ -158,7 +158,7 @@ public class generateTerrain : MonoBehaviour
                 if (hit.distance<4.5f)
                 {
                     Vector3Int pos = Vector3Int.FloorToInt(hit.point+hit.normal*0.5f);
-                    setBlock(pos, 3);
+                    setBlock(pos, Block.cobbleStone);
                     meshHasBeenEditedThisFrame = true;
                 }
             }
@@ -200,7 +200,6 @@ public class generateTerrain : MonoBehaviour
                         generateBlocks((int)Pos.x, (int)Pos.y, (int)Pos.z);
                     }
                     activeChunks.Add(Pos);
-
                 }
             }
         }

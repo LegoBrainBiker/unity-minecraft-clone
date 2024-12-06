@@ -13,7 +13,6 @@ public class Chunk
     private static readonly Vector3Int[] offsets = {new Vector3Int(0, 1, 0), new Vector3Int(0, -1, 0), new Vector3Int(0, 0, -1), new Vector3Int(0, 0, 1), new Vector3Int(1, 0, 0), new Vector3Int(-1, 0, 0)};
     private static readonly Vector3Int[] offsets2 = {new Vector3Int(0, 15, 0), new Vector3Int(0, 0, 0), new Vector3Int(0, 0, 0), new Vector3Int(0, 0, 15), new Vector3Int(15, 0, 0), new Vector3Int(0, 0, 0)};
     private static readonly Vector3Int[] offsets3 = {new Vector3Int(0, 0, 0), new Vector3Int(0, 15, 0), new Vector3Int(0, 0, 15), new Vector3Int(0, 0, 0), new Vector3Int(0, 0, 0), new Vector3Int(15, 0, 0)};
-    
     private static readonly Vector3Int[] offsets2x = {new Vector3Int(1, 0, 0), new Vector3Int(1, 0, 0), new Vector3Int(1, 0, 0), new Vector3Int(1, 0, 0), new Vector3Int(0, 1, 0), new Vector3Int(0, 1, 0)};
     private static readonly Vector3Int[] offsets2y = {new Vector3Int(0, 0, 1), new Vector3Int(0, 0, 1), new Vector3Int(0, 1, 0), new Vector3Int(0, 1, 0), new Vector3Int(0, 0, 1), new Vector3Int(0, 0, 1)};
     private static readonly int[,] textureNumber = {{-1, -1, -1, -1, -1, -1}, {3, 3, 3, 3, 3, 3}, {6, 6, 6, 6, 6, 6}, {7, 7, 7, 7, 7, 7}, {0, 3, 2, 2, 2, 2}, {8, 8, 8, 8, 8, 8}, {4, 4, 5, 5, 5, 5}, {1, 1, 1, 1, 1, 1}};
@@ -23,11 +22,11 @@ public class Chunk
     private GameObject sideMeshObject;
     private Mesh sideMesh;
 
-    int[,,] blocks;
+    Block[,,] blocks;
     private Material material;
     Vector3Int chunkPos;
 
-    public Chunk(int[,,] theBlocks, int X, int Y, int Z, Material mat, Chunk[] sideChunks)
+    public Chunk(Block[,,] theBlocks, int X, int Y, int Z, Material mat, Chunk[] sideChunks)
     {
         chunkPos = new Vector3Int(X*16, Y*16, Z*16);
         material = mat;
@@ -45,14 +44,14 @@ public class Chunk
         Vector3 pos;
         List<Vector2> UVs = new List<Vector2>();
         Vector3 offset;
-        int block;
+        Block block;
         for (int x = 0; x<16; x++)
         {
             for (int z = 0; z<16; z++)
             {
                 for (int y = 0; y<16; y++)
                 {
-                    if (blocks[x,y,z] != 0)
+                    if (blocks[x,y,z] != Block.air)
                     {
                         block = blocks[x,y,z];
                         for (int index = 0; index<6; index++)
@@ -60,13 +59,13 @@ public class Chunk
                             offset = offsets[index];
                             if ((int)offset.x+x>=0 && (int)offset.x+x < 16 && (int)offset.y+y>=0 && (int)offset.y+y < 16 && (int)offset.z+z>=0 && (int)offset.z+z < 16)
                             {
-                                if (blocks[(int)offset.x+x,(int)offset.y+y,(int)offset.z+z] == 0)
+                                if (blocks[(int)offset.x+x,(int)offset.y+y,(int)offset.z+z] == Block.air)
                                 {
                                     for (int i = 0;i<4;i++)
                                     {
                                         pos = points[points2[index, i]]+new Vector3(x, y, z)+chunkPos;
                                         verts.Add(pos);
-                                        UVs.Add(new Vector2(textureNumber[block, index]+Mathf.Floor(i/2),Mathf.Floor((i+1)%4/2)+15)/16f);
+                                        UVs.Add(new Vector2(block.textureMapings[index]+Mathf.Floor(i/2),Mathf.Floor((i+1)%4/2)+15)/16f);
                                     }
                                     triangles.Add(verts.Count-4);
                                     triangles.Add(verts.Count-3);
@@ -124,8 +123,8 @@ public class Chunk
         Vector3Int pos;
         Vector3Int pos2;
         List<Vector2> UVs = new List<Vector2>();
-        int block;
-        int block2;
+        Block block;
+        Block block2;
         for (int i = 0; i<6; i++) { // block faces
             if (sideChunks[i] != null) {
                 for (int x = 0; x < 16; x++) { // Position on face
@@ -134,12 +133,12 @@ public class Chunk
                         block = blocks[pos.x,pos.y,pos.z];
                         pos2 = offsets3[i]+offsets2x[i]*x+offsets2y[i]*y;
                         block2 = sideChunks[i].blocks[pos2.x,pos2.y,pos2.z];
-                        if (block != 0 && block2 == 0) {
+                        if (block != Block.air && block2 == Block.air) {
                                 for (int j = 0;j<4;j++) // vertexes
                                 {
                                     pos2 = points[points2[i, j]]+pos+chunkPos;
                                     verts.Add(pos2);
-                                    UVs.Add(new Vector2(Mathf.Floor(j/2)+textureNumber[block, i],Mathf.Floor((j+1)%4/2)+15)/16f);
+                                    UVs.Add(new Vector2(Mathf.Floor(j/2)+block.textureMapings[i],Mathf.Floor((j+1)%4/2)+15)/16f);
                                     
                                 }
                                 triangles.Add(verts.Count-4);
@@ -171,12 +170,12 @@ public class Chunk
             sideMeshObject.GetComponents<MeshCollider>()[0].sharedMesh = sideMesh;
         }
     }
-    public int getBlock(int x, int y, int z)
+    public Block getBlock(int x, int y, int z)
     {
         return blocks[x, y, z];
     }
     
-    public void setBlock(int x, int y, int z, int block, Chunk[] sideChunks)
+    public void setBlock(int x, int y, int z, Block block, Chunk[] sideChunks)
     {
         blocks[x, y, z] = block;
         generateMesh();
